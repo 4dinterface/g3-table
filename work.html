@@ -1,0 +1,38 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <!-- from root -->
+    <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="bower_components/polymer/polymer.html">
+    <link rel="import" href="bower_components/iron-icons/iron-icons.html">
+	
+    <script>
+      //window.Polymer = window.Polymer || {};
+      //window.Polymer.dom = 'shadow';
+    </script>
+    <!-- import a component that relies on Polymer -->
+    <link rel="import" href="g3-table.html">
+  </head>
+
+  <body>
+    <g3-table 
+        columns='[
+          {"title":"column1","column":"a"},
+          {"title":"column2","column":"b"},
+          {"title":"column2","column":"c"}
+        ]'
+              
+        data='[
+          {"a":"hello", "b":"maccoy","c":"test"},
+          {"a":"hello2", "b":"fillips","c":"test"},
+          {"a":"hello3", "b":"riseg","c":"test"},
+          {"a":"hello4", "b":"stern","c":"test"},
+          {"a":"hello5", "b":"spilberg","c":"test"},
+          {"a":"hello6", "b":"fant","c":"test"},
+          {"a":"hello7", "b":"lesky","c":"test"},
+          {"a":"hello8", "b":"lambert","c":"test"},
+          {"a":"hello9", "b":"bush", "c":"test"}
+        ]'
+    ></g3-table>
+  </body>
+</html>
