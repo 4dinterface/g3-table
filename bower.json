@@ -1,0 +1,26 @@
+{
+  "name": "g3-table",
+  "version": "0.0.0",
+  "authors": [
+    "4dinterface <4dinterface@mail.ru>"
+  ],
+  "description": "table controller",
+  "main": "g3-table",
+  "keywords": [
+    "table",
+    "grid",
+    "g3"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "iron-icons": "PolymerElements/iron-icons#~1.0.4",
+    "polymer": "Polymer/polymer#1.1.0"
+  }
+}

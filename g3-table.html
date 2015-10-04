@@ -1,0 +1,308 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+
+<dom-module id="g3-table">
+  <template>
+
+    <style>
+      
+      :host{
+        display: block;
+        position: relative;
+        padding-top: 37px;
+        background: #000;
+        height:200px;
+      }      
+      
+      section.positioned {
+        position: absolute;
+        top: 100px;
+        left: 100px;
+        width: 800px;
+        box-shadow: 0 0 15px #333;
+      }
+      
+      .container {
+        overflow-y: auto;
+        height: 100%;
+      }
+      
+      table {
+        border-spacing: 0;
+        width: 100%;
+        table-layout: fixed;
+      }      
+      
+      td + td {
+        border-left: 1px solid #bbb;
+      }
+      
+      td, th {
+        border-bottom: 1px solid #bbb;
+        background: transparent;
+        color: #000;
+        padding: 10px 25px;
+      }
+      
+        
+      tr {
+        background: #fff;
+      }
+      
+      tr:hover td{
+        background: #eee;
+      }
+      
+      th {
+        height: 0;
+        line-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        color: transparent;
+        border: none;
+        white-space: nowrap;
+      }
+      
+      th div {
+        position: absolute;
+        background: transparent;
+        color: #fff;
+        padding: 9px 25px;
+        top: 0;
+        margin-left: -25px;
+        line-height: normal;
+        border-left: 1px solid #555;
+      }
+      
+      th:first-child div {
+        border: none;
+      }
+      
+      .resizer {
+        background: transparent;
+        position: absolute;
+        top: 0px;
+        width: 10px;
+        height: 100%;
+        margin-left: -5px;
+        cursor: col-resize;
+      }
+      
+      .no-user-select{
+        -moz-user-select: none;
+        -khtml-user-select: none;
+        -webkit-user-select: none;
+        user-select: none; 
+      }
+    </style>
+    
+    <div class="container no-user-select" id="tableContainer">
+        <table>
+          <thead>
+            <tr class="header" id="headerTr">
+              <template id="headerTemplate" is="dom-repeat" items="{{columns}}">
+                <th on-tap="_onTapColumnHeader" index="{{index}}">                  
+                  {{item.title}}
+                  <div>
+                    <iron-icon hidden icon="[[sortColumnIcon]]" style="color:#777;"></iron-icon>
+                    <span>{{item.title}}</span>
+                  </div>
+                </th>
+              </template>
+            </tr>
+          </thead>
+          <tbody>
+            <template id="dataTemplate" is="dom-repeat" items="{{data}}" as="row" index-as="rowIndex">
+              <tr row-index="{{rowIndex}}" row={{row}} on-tap="onRowTap">
+                <template is="dom-repeat" items="{{columns}}" as="column" index-as="columnIndex">
+                  <td column-index="{{columnIndex}}" rowIndex="{{rowIndex}}" on-tap="onCellTap">{{columnRender(row, column.column)}} </td>
+                </template>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+
+        <template id="resizers" is="dom-repeat" items="{{columns}}">
+          <div class="resizer" style$="{{getResizerStyle(index)}}" index="{{index}}" on-down="_onStartResize" on-up="_onEndResize" on-track="_onResize"></div>
+        </template>
+      
+      </div>
+    
+  </template>
+
+  <script>
+    //вдохновение https://wintersandroid.github.io/simple-material-table/components/simple-material-table/
+    Polymer({
+      
+      
+
+      properties: {
+
+        /** Array of objects to display */
+        data: {
+          type: Array,
+          notify: true,
+          value: [],
+          observe: '_tableDataChanged'
+        },
+
+        /**
+         * Column definitions, array of objects
+         * ### Each column is defined as
+         *  Attribute | Type        | Description
+         * -----------|-------------|------------------
+         *    title   | String      | column title
+         *   number   | Boolean     |  true of column is a number
+         *   column   | String      | field name of column in data object
+         *   hidden   | Boolean     | default to hidden (true) or not (false)
+         *  formatter | function    | if set, is a function taking value returning formatted value.
+         */
+        columns: {
+          type: Array,
+          notify: true,
+          value: function () {
+            return [];
+          }
+        },
+
+        /** inner sort.*/
+        sortMode: {
+          type: String,
+          value: "inner"//inner or outer
+        },
+                
+        /** inner sort.*/
+        filterMode: {
+          type: String,
+          value: "inner"//inner or outer
+        }
+        
+      },
+
+      is: 'g3-table',
+      
+      
+      sortColumnAsc:true,
+
+      ready: function () {
+
+      },
+
+      /**
+       * get value
+       */
+      columnRender: function (row, name) {
+        return row[name];
+      },
+
+      _onTapColumnHeader: function (e) {
+        var element = e.target;
+    
+        if(this.curentSortColumnHeader){
+          this.curentSortColumnHeader.getElementsByTagName("iron-icon")[0].hidden = true
+        } 
+        
+        while(element.tagName !== "TH") element=element.parentNode;
+        
+        if(this.sortColumnIndex === e.model.index){
+          this.sortColumnAsc = !this.sortColumnAsc;
+        };
+        
+        this.sortColumnIndex = e.model.index;        
+        this.curentSortColumnHeader=element;
+        
+        this.sortColumnIcon = this.sortColumnAsc ? 'icons:expand-more' : 'icons:expand-less';
+        element.getElementsByTagName("iron-icon")[0].hidden=false;
+        
+        this.fire('action-sort', {
+          sortMode: this.sortMode,          
+          asc: this.sortColumnAsc,
+          columnIndex:this.sortColumnIndex,
+          column:this.columns[this.sortColumnIndex]
+        });
+        
+        if (this.sortMode=="inner") {
+          this.data=this.data.sort(this._sortTable.bind(this));
+          this.$.dataTemplate.render();
+        };
+      },
+
+      /**
+       * table
+       * вероятно сортировку не стоит вызыватьиз шаблона
+       */
+      _sortTable: function (a, b) {
+        var r = 0,
+          column = this.columns[this.sortColumnIndex].column,
+          av = column.type == "number" ? parseFloat(a[column]) : a[column],
+          bv = column.type == "number" ? parseFloat(b[column]) : b[column];
+
+        if (av < bv) {
+          r = -1;
+        }
+
+        if (av > bv) {
+          r = 1;
+        }
+
+        return this.sortColumnAsc ? -r : r;
+      },
+
+
+      getResizerStyle: function (index, el) {
+        setTimeout(function () {
+          var th = this.$.headerTr.getElementsByTagName("th")[index];
+          var el = this.$.tableContainer.getElementsByClassName("resizer")[index];
+          el.style.left = th.offsetLeft + "px";
+        }.bind(this), 1);
+      },
+
+      _onStartResize: function (e) {
+        var compStyle,
+          thCollection = this.$.headerTr.getElementsByTagName("th");
+
+
+        this.resizableAfter = thCollection[e.target.index];
+        this.resizableBefore = thCollection[e.target.index - 1];
+
+        compStyle = getComputedStyle(this.resizableBefore);
+        this.resizableBeforeWidth = this.resizableBefore.offsetWidth;
+        this.resizableBeforeWidth -= parseInt(compStyle.paddingLeft);
+        this.resizableBeforeWidth -= parseInt(compStyle.paddingRight);
+
+        compStyle = getComputedStyle(this.resizableAfter);
+        this.resizableAfterWidth = this.resizableAfter.offsetWidth;
+        this.resizableAfterWidth -= parseInt(compStyle.paddingLeft);
+        this.resizableAfterWidth -= parseInt(compStyle.paddingRight);
+                        
+        //Polymer.dom(this.$.tableContainer).classList.add("no-user-select")
+      },
+
+      _onEndResize: function () {
+        //Polymer.dom(this.$.tableContainer).classList.remove("no-user-select")
+      },
+
+      _onResize(e) {
+        var resizer = e.target,
+          offsetX = e.detail.dx,
+          beforeWidth = (this.resizableBeforeWidth + offsetX),
+          afterWidth = this.resizableAfterWidth - offsetX;
+            
+        if(beforeWidth>0){  
+          this.resizableBefore.style.width = beforeWidth + "px";
+          this.resizableAfter.style.width = afterWidth + "px";
+          resizer.style.left = this.resizableAfter.offsetLeft;
+        }
+      },
+      
+      onRowTap:function(){
+    
+      },
+      
+      onCellTap:function(){
+    
+      }
+      
+    });
+  </script>
+</dom-module>
