@@ -1,0 +1,185 @@
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../g3-table.html">
+
+<dom-module id="demo-1">
+  <style>
+    :host {
+      display: block;
+    }
+  </style>
+  <template>
+    <div style="padding-left:20%;padding-right:20%;">
+      <g3-table id="demo" title="Test Table" columns="[[columns]]" data="[[data]]" style="height:300px;"> </g3-table>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'demo-1',
+     
+      ready: function() {
+        this.columns = [{
+          title: "Sensor",
+          number: false,
+          column: 'sensor',
+          hidden: false
+        }, {
+          title: "Value",
+          number: true,
+          column: 'value',
+          render: function(value){
+            return parseFloat(value).toFixed(2);
+          },
+          hidden: false
+        }, {
+          title: "Raw Value",
+          number: true,
+          column: 'rawValue',
+          render: function(value){
+            return parseFloat(value).toFixed(0);
+          },
+          hidden: true
+        }, ];
+        
+        this.data =
+        [
+            {
+                "sensor": "T",
+                "value": 3.437,
+                "rawValue": "3437"
+            },
+            {
+                "sensor": "H",
+                "value": 86.5,
+                "rawValue": "8650"
+            },
+            {
+                "sensor": "V",
+                "value": 3.309,
+                "rawValue": "3309"
+            },
+            {
+                "sensor": "B",
+                "value": 1020.26,
+                "rawValue": "102026"
+            },
+            {
+                "sensor": "L",
+                "value": 2,
+                "rawValue": "2"
+            },
+            {
+                "sensor": "R",
+                "value": 0,
+                "rawValue": "0"
+            },
+            {
+                "sensor": "S",
+                "value": 0,
+                "rawValue": "0"
+            },
+            {
+                "sensor": "G",
+                "value": 0,
+                "rawValue": "0"
+            },
+            {
+                "sensor": "A",
+                "value": 0,
+                "rawValue": "0"
+            },
+            {
+                "sensor": "T",
+                "value": 3.437,
+                "rawValue": "3437"
+            },
+            {
+                "sensor": "H",
+                "value": 86.9,
+                "rawValue": "8690"
+            },
+            {
+                "sensor": "V",
+                "value": 3.309,
+                "rawValue": "3309"
+            },
+            {
+                "sensor": "B",
+                "value": 1020.18,
+                "rawValue": "102018"
+            },
+            {
+                "sensor": "L",
+                "value": 2,
+                "rawValue": "2"
+            },
+            {
+                "sensor": "R",
+                "value": 0,
+                "rawValue": "0"
+            },
+            {
+                "sensor": "S",
+                "value": 0,
+                "rawValue": "0"
+            },
+            {
+                "sensor": "G",
+                "value": 0,
+                "rawValue": "0"
+            },
+            {
+                "sensor": "A",
+                "value": 0,
+                "rawValue": "0"
+            },
+            {
+                "sensor": "T",
+                "value": 3.5,
+                "rawValue": "3500"
+            },
+            {
+                "sensor": "H",
+                "value": 86.4,
+                "rawValue": "8640"
+            },
+            {
+                "sensor": "V",
+                "value": 3.309,
+                "rawValue": "3309"
+            },
+            {
+                "sensor": "B",
+                "value": 1020.21,
+                "rawValue": "102021"
+            },
+            {
+                "sensor": "L",
+                "value": 2,
+                "rawValue": "2"
+            },
+            {
+                "sensor": "R",
+                "value": 0,
+                "rawValue": "0"
+            },
+            {
+                "sensor": "S",
+                "value": 0,
+                "rawValue": "0"
+            },
+            {
+                "sensor": "G",
+                "value": 0,
+                "rawValue": "0"
+            },
+            {
+                "sensor": "A",
+                "value": 0,
+                "rawValue": "0"
+            }
+        ];
+      }
+      
+    });
+  </script>
+</dom-module>

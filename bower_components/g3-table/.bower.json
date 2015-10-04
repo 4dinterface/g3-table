@@ -1,0 +1,39 @@
+{
+  "name": "g3-table",
+  "authors": [
+    "4dinterface <4dinterface@mail.ru>"
+  ],
+  "description": "table controller",
+  "main": "g3-table",
+  "keywords": [
+    "table",
+    "grid",
+    "g3"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "iron-icons": "PolymerElements/iron-icons#~1.0.4",
+    "polymer": "Polymer/polymer#1.1.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "web-component-tester": "*"
+  },
+  "homepage": "https://github.com/4dinterface/g3-table",
+  "_release": "aba203d588",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "aba203d58810bfb0d5a529b4fad8473d7036bf15"
+  },
+  "_source": "https://github.com/4dinterface/g3-table.git",
+  "_target": "*",
+  "_originalSource": "https://github.com/4dinterface/g3-table.git"
+}
