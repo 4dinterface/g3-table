@@ -1,6 +1,31 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
 
+<!--
+Table component
+
+<b> supports:</b>  sort, resize, vertical scroll
+
+
+Example:
+
+    <g3-table
+      columns="[
+        {'header':'1','column':'name'}
+      ]"
+      data="[
+        {'name':'andry','family':'jonson'}
+      ]">
+    </g3-table>
+
+github: https://github.com/4dinterface/g3-table
+
+<b>in work: </b>:
+select, filter, edit, horizontal scrolling
+
+@demo
+-->
+
 <dom-module id="g3-table">
   <template>
 
@@ -11,7 +36,6 @@
         position: relative;
         padding-top: 37px;
         background: #000;
-        height:200px;
       }      
       
       section.positioned {
@@ -32,6 +56,7 @@
         width: 100%;
         table-layout: fixed;
       }      
+      
       
       td + td {
         border-left: 1px solid #bbb;
@@ -79,6 +104,7 @@
       }
       
       .resizer {
+        /*background: black;*/
         background: transparent;
         position: absolute;
         top: 0px;
@@ -98,8 +124,16 @@
     
     <div class="container no-user-select" id="tableContainer">
         <table>
-          <thead>
-            <tr class="header" id="headerTr">
+          
+          <thead>          
+            <tr class="header" id="headerTr">            
+              <!--
+              <th style="width:30px;">                  
+                  <div>                                        
+                    <span>N</span>
+                  </div>
+              </th>
+              -->                
               <template id="headerTemplate" is="dom-repeat" items="{{columns}}">
                 <th on-tap="_onTapColumnHeader" index="{{index}}">                  
                   {{item.title}}
@@ -111,31 +145,35 @@
               </template>
             </tr>
           </thead>
+          
           <tbody>
             <template id="dataTemplate" is="dom-repeat" items="{{data}}" as="row" index-as="rowIndex">
-              <tr row-index="{{rowIndex}}" row={{row}} on-tap="onRowTap">
+              <tr row-index="{{rowIndex}}" row={{row}} on-tap="_onRowTap">
+                <!--<td rowIndex="{{rowIndex}}">{{rowIndex}}</td>-->
                 <template is="dom-repeat" items="{{columns}}" as="column" index-as="columnIndex">
-                  <td column-index="{{columnIndex}}" rowIndex="{{rowIndex}}" on-tap="onCellTap">{{columnRender(row, column.column)}} </td>
+                  <td column-index="{{columnIndex}}" rowIndex="{{rowIndex}}" on-tap="_onCellTap">{{_columnRender(row, column.column)}} </td>
                 </template>
               </tr>
             </template>
           </tbody>
+
         </table>
 
         <template id="resizers" is="dom-repeat" items="{{columns}}">
-          <div class="resizer" style$="{{getResizerStyle(index)}}" index="{{index}}" on-down="_onStartResize" on-up="_onEndResize" on-track="_onResize"></div>
-        </template>
+          <div class="resizer" style$="{{_getResizerStyle(index)}}" index="{{index}}" on-down="_onStartResize" on-up="_onEndResize" on-track="_onResize"></div>
+        </template>      
       
-      </div>
-    
+      </div>    
   </template>
 
   <script>
-    //вдохновение https://wintersandroid.github.io/simple-material-table/components/simple-material-table/
     Polymer({
+    
+    /**
+     * The column-resize
+     * @event column-resize
+     */
       
-      
-
       properties: {
 
         /** Array of objects to display */
@@ -149,14 +187,16 @@
         /**
          * Column definitions, array of objects
          * ### Each column is defined as
-         *  Attribute | Type        | Description
-         * -----------|-------------|------------------
-         *    title   | String      | column title
-         *   number   | Boolean     |  true of column is a number
-         *   column   | String      | field name of column in data object
-         *   hidden   | Boolean     | default to hidden (true) or not (false)
-         *  formatter | function    | if set, is a function taking value returning formatted value.
+         *  Attribute | Type         | Description
+         * -----------|--------------|------------------
+         *   title    | String       | column title
+         *   type     | String       | Can be number or string
+         *   column   | String       | field name of column in data object
+         *   hidden   | Boolean      | default to hidden (true) or not (false)
+         *   renderer | function     | if set, is a function taking value returning formatted value.
+         *   editor   | string       | not support. TODO!
          */
+        
         columns: {
           type: Array,
           notify: true,
@@ -165,13 +205,20 @@
           }
         },
 
-        /** inner sort.*/
+        /** 
+         *  sort mode.
+         *  Can be `inner` or `outer`.
+         */
         sortMode: {
           type: String,
-          value: "inner"//inner or outer
+          value: "inner"
         },
                 
-        /** inner sort.*/
+        /** 
+         *  filter mode.
+         *  Can be `inner` or `outer`.
+         */
+        
         filterMode: {
           type: String,
           value: "inner"//inner or outer
@@ -183,6 +230,15 @@
       
       
       sortColumnAsc:true,
+      
+      
+      listeners: {      
+        'tableContainer.scroll': '_onScroll'
+      },
+      
+      _onScroll:function(e){
+        console.log(this.$.tableContainer.scrollLeft, this.$.tableContainer);
+      },      
 
       ready: function () {
 
@@ -191,7 +247,7 @@
       /**
        * get value
        */
-      columnRender: function (row, name) {
+      _columnRender: function (row, name) {
         return row[name];
       },
 
@@ -228,8 +284,7 @@
       },
 
       /**
-       * table
-       * вероятно сортировку не стоит вызыватьиз шаблона
+       * sort function
        */
       _sortTable: function (a, b) {
         var r = 0,
@@ -249,12 +304,14 @@
       },
 
 
-      getResizerStyle: function (index, el) {
+      _getResizerStyle: function (index, el) {
         setTimeout(function () {
           var th = this.$.headerTr.getElementsByTagName("th")[index];
           var el = this.$.tableContainer.getElementsByClassName("resizer")[index];
           el.style.left = th.offsetLeft + "px";
+          console.log("___")
         }.bind(this), 1);
+        
       },
 
       _onStartResize: function (e) {
@@ -280,8 +337,13 @@
 
       _onEndResize: function () {
         //Polymer.dom(this.$.tableContainer).classList.remove("no-user-select")
+        //this.$.resizers.render(); //TODO стоит поискать решение получше
       },
-
+      
+      /**
+       * on-track handler
+       * @param e {event} 
+       */
       _onResize(e) {
         var resizer = e.target,
           offsetX = e.detail.dx,
@@ -291,15 +353,15 @@
         if(beforeWidth>0){  
           this.resizableBefore.style.width = beforeWidth + "px";
           this.resizableAfter.style.width = afterWidth + "px";
-          resizer.style.left = this.resizableAfter.offsetLeft;
+          resizer.style.left = this.resizableAfter.offsetLeft+"px";
         }
       },
       
-      onRowTap:function(){
+      _onRowTap:function(){
     
       },
       
-      onCellTap:function(){
+      _onCellTap:function(){
     
       }
       
